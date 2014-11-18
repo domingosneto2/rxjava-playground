@@ -1,37 +1,43 @@
-package com.codeinstructions.rx;
+package com.codeinstructions.rx.old;
 
 import com.codeinstructions.threading.ThreadUtil;
 import rx.Observable;
 import rx.Producer;
+import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by Domingos on 11/11/2014.
+ * This example shows how a StackOverflow can happen if you are not careful about
+ * avoiding recursive calls on the Producer.request() method.
  */
-public class Test01 {
+public class Test10 {
     public static void main(String[] args) {
-        ExecutorService subscriberPool = Executors.newFixedThreadPool(5);
         ExecutorService observerPool = Executors.newFixedThreadPool(5);
+        Scheduler scheduler = Schedulers.from(observerPool);
+        ExecutorService subscriberPool = Executors.newFixedThreadPool(1);
         testingSource()
-                .take(10)
                 .subscribeOn(Schedulers.from(subscriberPool))
-                .observeOn(Schedulers.from(observerPool))
+                //.take(1000)
+                //.observeOn(scheduler)
                 .doOnCompleted(() -> {
-                    subscriberPool.shutdown();
                     observerPool.shutdown();
+                    subscriberPool.shutdown();
                 })
-                .forEach(i -> {
-                    log("Processing " + i);
-                    randomSleep(2000, 2000);
-                    log("Processed " + i);
-                });
+                //.buffer(10)
+                .flatMap(i -> Observable.just(i)
+                        .observeOn(scheduler)
+                        .doOnNext(i2 -> {
+                            log("Processing " + i2);
+                            randomSleep(20, 20);
+                            log("Processed " + i2);
+                        }))
+                .subscribe();
     }
 
     private static Observable<Integer> testingSource() {
-//        ExecutorService subscriberPool = Executors.newFixedThreadPool(5);
         return Observable.create(s -> {
             s.setProducer(new Producer() {
                 int v = 0;
@@ -39,20 +45,14 @@ public class Test01 {
                 @Override
                 public void request(long n) {
                     log("Requested " + n);
-                    for (int i = 0; i < n; i++) {
-                        log("Generating " + v);
-                        randomSleep(500, 500);
-                        log("Generated " + v);
+                    randomSleep(5, 5);
+                    if (!s.isUnsubscribed()) {
                         log("Emitting " + v);
-                        if (!s.isUnsubscribed()) {
-                            s.onNext(v);
-                        }
-                        log("Emitted " + v);
-                        v++;
+                        s.onNext(v++);
                     }
+                    v++;
                 }
             });
-
         });
     }
 

@@ -1,6 +1,7 @@
-package com.codeinstructions.rx;
+package com.codeinstructions.rx.old;
 
 import com.codeinstructions.log.Log;
+import com.codeinstructions.rx.Publisher;
 import com.codeinstructions.threading.ThreadUtil;
 import rx.Observable;
 import rx.Producer;
@@ -12,9 +13,9 @@ import java.util.concurrent.Executors;
 /**
  * Created by Domingos on 11/11/2014.
  */
-public class Test11 {
+public class Test13 {
     public static void main(String[] args) {
-        ExecutorService observerPool = Executors.newFixedThreadPool(1);
+        ExecutorService observerPool = Executors.newFixedThreadPool(4);
         testingSource()
                 .take(10)
                 .doOnCompleted(() -> {
@@ -25,7 +26,7 @@ public class Test11 {
                             .observeOn(Schedulers.from(observerPool))
                             .doOnNext(i2 -> {
                                 Log.log("Processing " + i2);
-                                randomSleep(2000, 2000);
+                                randomSleep(20, 20);
                                 Log.log("Processed " + i2);
                             });
                 })
@@ -37,7 +38,7 @@ public class Test11 {
         Runnable r = () -> {
             int i = 0;
             while(true) {
-                randomSleep(500, 500);
+                randomSleep(5, 5);
                 if (!p.publish(i++)) {
                     Log.log("Finishing...");
                     p.finish();

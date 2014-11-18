@@ -1,34 +1,16 @@
-package com.codeinstructions.rx;
+package com.codeinstructions.rx.old;
 
 import com.codeinstructions.threading.ThreadUtil;
 import rx.Observable;
 import rx.Producer;
-import rx.schedulers.Schedulers;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Domingos on 11/11/2014.
  */
-public class Test10 {
+public class Test02 {
     public static void main(String[] args) {
-        ExecutorService observerPool = Executors.newFixedThreadPool(5);
-        ExecutorService subscriberPool = Executors.newFixedThreadPool(1);
         testingSource()
-                .subscribeOn(Schedulers.from(subscriberPool))
                 .take(10)
-                .doOnCompleted(() -> {
-                    observerPool.shutdown();
-                    subscriberPool.shutdown();
-                })
-                .flatMap(i -> Observable.just(i)
-                        .observeOn(Schedulers.from(observerPool))
-                        .doOnNext(i2 -> {
-                            log("Processing " + i2);
-                            randomSleep(200, 200);
-                            log("Processed " + i2);
-                        }))
                 .subscribe();
     }
 
@@ -40,14 +22,20 @@ public class Test10 {
                 @Override
                 public void request(long n) {
                     log("Requested " + n);
-                    randomSleep(50, 50);
-                    if (!s.isUnsubscribed()) {
+                    for (int i = 0; i < n; i++) {
+                        log("Generating " + v);
+                        randomSleep(500, 500);
+                        log("Generated " + v);
                         log("Emitting " + v);
-                        s.onNext(v++);
+                        if (!s.isUnsubscribed()) {
+                            s.onNext(v);
+                        }
+                        log("Emitted " + v);
+                        v++;
                     }
-                    v++;
                 }
             });
+
         });
     }
 

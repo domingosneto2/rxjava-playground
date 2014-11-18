@@ -1,4 +1,4 @@
-package com.codeinstructions.rx;
+package com.codeinstructions.rx.old;
 
 /**
  * Created by Domingos on 11/11/2014.
