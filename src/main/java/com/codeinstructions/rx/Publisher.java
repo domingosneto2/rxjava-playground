@@ -6,9 +6,6 @@ import rx.Subscriber;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Created by Domingos on 12/11/2014.
- */
 public class Publisher<T> {
     private Observable<T> observable;
 
@@ -25,7 +22,9 @@ public class Publisher<T> {
                 synchronized (requested) {
                     long newN = requested.addAndGet(n);
                     Log.log("New n: " + newN);
-                    requested.notifyAll();
+                    if (newN == n) {
+                        requested.notifyAll();
+                    }
                 }
                 unsubscribed = s.isUnsubscribed();
             });
