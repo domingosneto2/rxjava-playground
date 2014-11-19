@@ -1,9 +1,7 @@
 package com.codeinstructions.rx;
 
+import com.codeinstructions.log.Log;
 import rx.Observable;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Now we've swapped the Observable implementation with our own.
@@ -15,7 +13,7 @@ import java.util.Date;
  */
 public class Test03 {
     public static void main(String[] args) {
-        testingSource(0, 100).subscribe(Test03::println);
+        testingSource(0, 100).subscribe(Log::log);
     }
 
     private static Observable<Integer> testingSource(int min, int max) {
@@ -24,30 +22,12 @@ public class Test03 {
                 if (subscriber.isUnsubscribed()) {
                     break;
                 }
-                println("Emitting " + i);
+                Log.log("Emitting " + i);
                 subscriber.onNext(i);
             }
             if (!subscriber.isUnsubscribed()) {
                 subscriber.onCompleted();
             }
         });
-    }
-
-    private static void println(int i) {
-        System.out.println(label() + i);
-    }
-
-    private static void println(String str) {
-        System.out.println(label() + str);
-    }
-
-    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");
-
-    private static String time() {
-        return sdf.format(new Date(System.currentTimeMillis()));
-    }
-
-    private static String label() {
-        return time() + " [" + Thread.currentThread().getName() + "]: ";
     }
 }

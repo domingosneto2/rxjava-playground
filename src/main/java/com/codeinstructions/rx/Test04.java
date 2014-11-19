@@ -1,10 +1,8 @@
 package com.codeinstructions.rx;
 
+import com.codeinstructions.log.Log;
 import rx.Observable;
 import rx.schedulers.Schedulers;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Here we specify the Scheduler where the OnSubscribe.call() method will run
@@ -20,7 +18,7 @@ public class Test04{
     public static void main(String[] args) {
         testingSource(0, 100)
                 .subscribeOn(Schedulers.computation())
-                .subscribe(Test04::println);
+                .subscribe(Log::log);
     }
 
     private static Observable<Integer> testingSource(int min, int max) {
@@ -29,30 +27,12 @@ public class Test04{
                 if (subscriber.isUnsubscribed()) {
                     break;
                 }
-                println("Emitting " + i);
+                Log.log("Emitting " + i);
                 subscriber.onNext(i);
             }
             if (!subscriber.isUnsubscribed()) {
                 subscriber.onCompleted();
             }
         });
-    }
-
-    private static void println(int i) {
-        System.out.println(label() + i);
-    }
-
-    private static void println(String str) {
-        System.out.println(label() + str);
-    }
-
-    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");
-
-    private static String time() {
-        return sdf.format(new Date(System.currentTimeMillis()));
-    }
-
-    private static String label() {
-        return time() + " [" + Thread.currentThread().getName() + "]: ";
     }
 }

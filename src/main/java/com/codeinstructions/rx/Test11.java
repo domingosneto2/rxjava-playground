@@ -1,12 +1,11 @@
 
 package com.codeinstructions.rx;
 
+import com.codeinstructions.log.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -54,7 +53,7 @@ public class Test11 {
             AtomicInteger ai = new AtomicInteger(min);
             AtomicLong requested = new AtomicLong(0);
             subscriber.setProducer(n -> {
-                println("Requested " + n);
+                Log.log("Requested " + n);
                 long newR = requested.addAndGet(n);
                 if (newR != n) {
                     // Avoid recursive call.
@@ -68,7 +67,7 @@ public class Test11 {
                         subscriber.onCompleted();
                         break;
                     }
-                    println("Emitting " + ai.get());
+                    Log.log("Emitting " + ai.get());
                     subscriber.onNext(ai.getAndAdd(1));
                     try {
                         Thread.sleep(5);
@@ -87,24 +86,6 @@ public class Test11 {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        println(i);
-    }
-
-    private static void println(int i) {
-        System.out.println(label() + i);
-    }
-
-    private static void println(String str) {
-        System.out.println(label() + str);
-    }
-
-    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");
-
-    private static String time() {
-        return sdf.format(new Date(System.currentTimeMillis()));
-    }
-
-    private static String label() {
-        return time() + " [" + Thread.currentThread().getName() + "]: ";
+        Log.log(i);
     }
 }

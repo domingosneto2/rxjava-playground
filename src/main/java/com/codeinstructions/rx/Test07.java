@@ -1,12 +1,11 @@
 
 package com.codeinstructions.rx;
 
+import com.codeinstructions.log.Log;
 import rx.Observable;
 import rx.Observer;
 import rx.schedulers.Schedulers;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -58,7 +57,7 @@ public class Test07 {
                     break;
                 }
 
-                println("Emitting " + i);
+                Log.log("Emitting " + i);
                 subscriber.onNext(i);
                 try {
                     Thread.sleep(5);
@@ -78,24 +77,6 @@ public class Test07 {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        println(i);
-    }
-
-    private static void println(int i) {
-        System.out.println(label() + i);
-    }
-
-    private static void println(String str) {
-        System.out.println(label() + str);
-    }
-
-    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");
-
-    private static String time() {
-        return sdf.format(new Date(System.currentTimeMillis()));
-    }
-
-    private static String label() {
-        return time() + " [" + Thread.currentThread().getName() + "]: ";
+        Log.log(i);
     }
 }
