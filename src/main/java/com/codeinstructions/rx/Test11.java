@@ -11,6 +11,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * This example has an Observable implementation that handles recursive
+ * calls properly.
+ */
 public class Test11 {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(1);
@@ -19,7 +23,7 @@ public class Test11 {
                 .buffer(100)
                 .flatMap(l -> Observable.from(l)
                                 .observeOn(Schedulers.computation())
-                                .doOnNext(i -> consume(i))
+                                .doOnNext(Test11::consume)
                 )
                 .subscribe(new Observer<Integer>() {
                     @Override

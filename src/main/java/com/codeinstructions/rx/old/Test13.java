@@ -41,7 +41,7 @@ public class Test13 {
                 randomSleep(5, 5);
                 if (!p.publish(i++)) {
                     Log.log("Finishing...");
-                    p.finish();
+                    p.onCompleted();
                     return;
                 }
             }

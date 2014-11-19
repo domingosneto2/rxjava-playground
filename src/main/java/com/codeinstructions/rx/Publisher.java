@@ -1,9 +1,10 @@
 package com.codeinstructions.rx;
 
-import com.codeinstructions.log.Log;
 import rx.Observable;
 import rx.Subscriber;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Publisher<T> {
@@ -13,20 +14,30 @@ public class Publisher<T> {
 
     private Subscriber<? super T> subscriber;
 
-    private boolean unsubscribed = false;
+    private volatile boolean unsubscribed = false;
 
     public Publisher() {
         observable = Observable.create(s -> {
             s.setProducer(n -> {
-                Log.log("Requested " + n);
+                println("Requested " + n);
                 synchronized (requested) {
-                    long newN = requested.addAndGet(n);
-                    Log.log("New n: " + newN);
-                    if (newN == n) {
-                        requested.notifyAll();
+                    long oldN = requested.get();
+                    long newN = Math.max(oldN, n);
+                    if (newN != oldN) {
+                        requested.set(newN);
+                    }
+                    println("New n: " + newN);
+                    if (oldN == 0) {
+                        // requested was previously zero.  The publishing
+                        // thread might be blocked.  Lets update the values
+                        // of the shared variables and wake the thread.
+                        unsubscribed = s.isUnsubscribed();
+                        if (unsubscribed) {
+                            requested.set(0);
+                        }
+                        requested.notify();
                     }
                 }
-                unsubscribed = s.isUnsubscribed();
             });
             subscriber = s;
         });
@@ -35,7 +46,7 @@ public class Publisher<T> {
     public boolean publish(T value){
         synchronized (requested) {
             while (requested.get() == 0) {
-                Log.log("Zero requested.  Waiting...");
+                println("Zero requested.  Waiting...");
                 if (unsubscribed) {
                     return false;
                 }
@@ -45,18 +56,36 @@ public class Publisher<T> {
                     throw new RuntimeException(e);
                 }
             }
-            Log.log("Publishing " + value);
+            println("Publishing " + value);
             subscriber.onNext(value);
             requested.decrementAndGet();
             return !unsubscribed;
         }
     }
 
+    public void onCompleted() {
+        subscriber.onCompleted();
+    }
+
+    public void onError(Throwable t) {
+        subscriber.onError(t);
+    }
+
     public Observable<T> getObservable() {
         return observable;
     }
 
-    public void finish() {
-        subscriber.onCompleted();
+    private static void println(String str) {
+        System.out.println(label() + str);
+    }
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");
+
+    private static String time() {
+        return sdf.format(new Date(System.currentTimeMillis()));
+    }
+
+    private static String label() {
+        return time() + " [" + Thread.currentThread().getName() + "]: ";
     }
 }

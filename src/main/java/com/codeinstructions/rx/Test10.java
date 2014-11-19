@@ -10,6 +10,11 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This is an example on how we may get a StackOverflowError if we
+ * don't handle recursive calls in the producer's request() method.
+ * We removed the call to buffer() on purpose to cause the StackOverflowError.
+ */
 public class Test10 {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(1);

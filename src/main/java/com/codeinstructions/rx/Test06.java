@@ -8,6 +8,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Now we run the Observable on the io Scheduler and the subscriber
+ * in the computation scheduler.  Now we have asynchronous execution,
+ * that is, the observable's call to onNext() doesn't have to wait for
+ * the subscriber's callback tot run.
+ *
+ * As we will see later, this may cause problems with backpressure.
+ * If the observable emits items faster than the subscriber can process
+ * them, an exception will be thrown.
+ */
 public class Test06 {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(1);

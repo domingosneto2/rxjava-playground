@@ -7,6 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Here we extend the previous example by using a CountDownLatch to prevent the main
+ * thread from terminating before the subscription completes.
+ */
 public class Test05 {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(1);
@@ -28,6 +32,7 @@ public class Test05 {
                 if (subscriber.isUnsubscribed()) {
                     break;
                 }
+                println("Emitting " + i);
                 subscriber.onNext(i);
             }
             if (!subscriber.isUnsubscribed()) {
@@ -38,6 +43,10 @@ public class Test05 {
 
     private static void println(int i) {
         System.out.println(label() + i);
+    }
+
+    private static void println(String str) {
+        System.out.println(label() + str);
     }
 
     private static SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss:SSS");

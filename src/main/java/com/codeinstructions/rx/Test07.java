@@ -9,6 +9,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Here we simulate an observable that emits items twice as fast as
+ * the subscriber can process them.  If you run this sample, you will
+ * see that after a while a MissingBackpressureException is thrown.
+ * This happens because the Observable and the observer run on
+ * different threads.
+ *
+ * We also changed the subscribe() call and now pass a full blown
+ * Observer object, where we implement the onNext(), onError() and
+ * onComplete() methods.
+ */
 public class Test07 {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(1);

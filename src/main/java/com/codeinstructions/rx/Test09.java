@@ -10,6 +10,11 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Here we use flatMap() to split the subscription among multiple threads.
+ * It is important to use buffer() so that each unit of work contains
+ * many grouped items, otherwise performance will suffer.
+ */
 public class Test09 {
     public static void main(String[] args) {
         CountDownLatch latch = new CountDownLatch(1);
@@ -34,6 +39,8 @@ public class Test09 {
 
                     @Override
                     public void onNext(Integer integer) {
+                        // No real work.  The actual work is being
+                        // performend on doOnNext() inside the flatMap() call.
                     }
                 });
 
